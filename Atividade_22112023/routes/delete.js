@@ -1,24 +1,29 @@
-require("dotenv-safe").config();
 var express = require('express');
 var router = express.Router();
+const axios = require('axios');
 
-const url = "https://mauricio.inf.br/p6/api/del.php";
+router.use(express.json());
 
-router.delete('/', (req, res, next) => { 
+router.post('/', async (req, res, next) => { 
     try{
-        const token = req.headers['authorization'];
+        const token = req.headers['x_access_token'];
+        console.log(token)
+        console.log(req.headers);
 
-        const placa = req.params.placa
-
-        const response = axios.delete(url, {
+        const config = {
             headers: {
-                Authorization: 'Bearer ${token}'
+                Authorization: token
             }
+        }
+
+        await axios.delete('https://mauricio.inf.br/p6/api/del.php', config)
+        .then(dadoss => {
+            res.json({mensagem: dadoss.data});
+        })
+        .catch(function (error) {
+            res.status(401).json({ message: "Não foi possível deletar o veículo" });
         });
-
-        const mensagem = response.data;
-
-        res.json({mensagem: mensagem});
+    
     }
     catch (error) {
         console.error("Erro ao receber dados!", error.message);

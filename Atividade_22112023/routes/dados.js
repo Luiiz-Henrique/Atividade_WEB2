@@ -2,22 +2,23 @@ const axios = require('axios');
 var express = require('express');
 var router = express.Router();
 
-
-
-const url = "https://mauricio.inf.br/p6/api/list.php";
-
 router.get('/', async (req, res, next) => { 
     try{
-        const token = req.headers['Authorization'];
-        console.log('Bearer ${token}')
+        const token = req.headers['x_access_token'];
+        console.log(token)
+        console.log(req.headers);
 
-        await axios.get(url, {
-            Headers: {
-                Authorization: "Bearer ${token}"
+        
+
+        const config = {
+            headers: {
+                Authorization: token
             }
-        })
+        }
+
+        
+        await axios.get('https://mauricio.inf.br/p6/api/list.php', config)
         .then(dadoss => {
-            console.log("OLAAAAAA")
             res.json({dados: dadoss.data});
         })
         .catch(function (error) {

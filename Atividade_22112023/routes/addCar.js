@@ -1,33 +1,39 @@
-require("dotenv-safe").config();
-const jwt = require("jsonwebtoken");
 var express = require('express');
 var router = express.Router();
-
+const axios = require('axios');
 
 
 const url = "https://mauricio.inf.br/p6/api/add.php";
 
-router.post('/', (req, res, next) => { 
+router.post('/', async (req, res, next) => { 
     try{
-        const token = req.headers['authorization'];
+        const token = req.headers['x_access_token'];
+        console.log(token)
+        console.log(req.headers);
+
+        
+
+        const config = {
+            headers: {
+                Authorization: token
+            }
+        }
 
         const {placa, marca, modelo, ano_fabric, cor} = req.body
 
-        const response = axios.post(url, {
+        await axios.post(url, {
             placa: placa,
             marca: marca,
             modelo: modelo,
             ano_de_fabricação: ano_fabric,
             cor: cor
-        }, {
-            headers: {
-                Authorization: "Bearer ${token}"
-            }
+        }, config)
+        .then(dadoss => {
+            res.json({carro_adicionado: dadoss.data});
+        })
+        .catch(function (error) {
+            res.status(401).json({ message: "Carro não adicionado" });
         });
-
-        const novoDado = response.data;
-
-        res.json({carro_adicionado: novoDado});
     }
     catch (error) {
         console.error("Erro ao receber dados!", error.message);
