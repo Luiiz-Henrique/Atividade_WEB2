@@ -1,5 +1,4 @@
-require("dotenv-safe").config();
-const jwt = require("jsonwebtoken");
+const axios = require('axios');
 var express = require('express');
 var router = express.Router();
 
@@ -7,19 +6,23 @@ var router = express.Router();
 
 const url = "https://mauricio.inf.br/p6/api/list.php";
 
-router.get('/', (req, res, next) => { 
+router.get('/', async (req, res, next) => { 
     try{
-        const token = req.headers['authorization'];
+        const token = req.headers['Authorization'];
+        console.log('Bearer ${token}')
 
-        const response = axios.get(url, {
-            headers: {
-                authorization: 'Bearer ${token}'
+        await axios.get(url, {
+            Headers: {
+                Authorization: "Bearer ${token}"
             }
+        })
+        .then(dadoss => {
+            console.log("OLAAAAAA")
+            res.json({dados: dadoss.data});
+        })
+        .catch(function (error) {
+            res.status(401).json({ message: "Credenciais inválidas" });
         });
-
-        const dados = response.data;
-
-        res.json({dados: dados});
     }
     catch (error) {
         console.error("Erro ao receber dados!", error.message);
